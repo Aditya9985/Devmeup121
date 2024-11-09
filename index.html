@@ -692,7 +692,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Popular Blogs</title>
   <style>
-    /* Add your existing CSS here */
+    /* Styling for blog cards and section */
     :root {
       --ghost-white: #f8f8f8;
       --raisin-black-1: #262626;
@@ -708,13 +708,9 @@
       --transition-2: 0.5s ease;
     }
 
-    /* Blog section styles */
     .blog {
       background-color: var(--ghost-white);
-    }
-
-    .blog .section-title {
-      margin-block: 20px 70px;
+      padding: 20px;
     }
 
     .blog-list {
@@ -722,158 +718,74 @@
       gap: 40px;
     }
 
-    .blog-card .card-banner {
-      border-radius: var(--radius-20);
-      overflow: hidden;
-      margin-block-end: 20px;
-    }
-
-    .blog-card.large .card-banner {
-      margin-block-end: 40px;
-    }
-
-    .blog-card.large .card-title {
-      font-size: var(--fs-2);
-      line-height: 1.2;
-      margin-block-end: 20px;
-    }
-
-    .blog-card .card-text {
-      color: var(--cool-gray);
-    }
-
     .blog-card .card-banner img {
-      transition: var(--transition-2);
+      width: 100%;
+      height: auto;
+      border-radius: var(--radius-20);
     }
 
-    .blog-card:is(:hover, :focus-within) .card-banner img {
-      transform: scale(1.1);
-    }
-
-    .blog-card .wrapper {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 30px;
-      margin-block-end: 20px;
-    }
-
-    .blog-card .tag {
-      color: var(--majorelle-blue);
-      font-size: var(--fs-9);
-      font-weight: var(--fw-700);
-      text-transform: uppercase;
-      transition: var(--transition-1);
-    }
-
-    .blog-card .tag:is(:hover, :focus) {
-      color: var(--raisin-black-1);
-    }
-
-    .blog-card .publish-date {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: var(--cool-gray);
-      font-weight: var(--fw-500);
-      transition: var(--transition-1);
-    }
-
-    .blog-card .publish-date ion-icon {
-      font-size: 18px;
-      --ionicon-stroke-width: 40px;
-    }
-
-    .blog-card .publish-date:is(:hover, :focus) {
-      color: var(--raisin-black-1);
-    }
-
-    .blog-card .card-title {
+    .card-title {
       color: var(--raisin-black-1);
       font-size: var(--fs-4);
-      letter-spacing: -1px;
-      transition: var(--transition-1);
-    }
-
-    .blog-card .card-title:is(:hover, :focus) {
-      color: var(--majorelle-blue);
+      font-weight: var(--fw-700);
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
 
-  <section class="section blog" id="blog" aria-label="blog">
-    <div class="container">
-
-      <p class="section-subtitle text-center has-before">Blog Post</p>
-
-      <h2 class="h2 section-title text-center">
-        Popular <span class="has-before">blog post</span>
-      </h2>
-
-      <ul class="blog-list" id="blog-list">
-        <!-- Blog posts will be dynamically inserted here -->
-      </ul>
-
-    </div>
+  <section class="blog" id="blog">
+    <h2>Popular Blogs</h2>
+    <ul class="blog-list" id="blog-list"></ul>
+    <p id="error-message" style="color: red;"></p>
   </section>
 
   <script>
     const apiKey = 'e90ee6ee7d094b1eb51b26e0951b7097';
-    const apiUrl = `https://newsapi.org/v2/top-headlines?category=technology&apiKey=${apiKey}&pageSize=10`; // Fetch 10 articles to ensure some have images
+    const apiUrl = `https://newsapi.org/v2/top-headlines?category=technology&apiKey=${apiKey}&pageSize=10`;
 
-    // Function to fetch and display the blogs from the API
     async function fetchBlogPosts() {
       try {
         const response = await fetch(apiUrl);
-        const data = await response.json();
+        if (!response.ok) throw new Error('Failed to fetch news articles');
         
+        const data = await response.json();
         const blogList = document.getElementById('blog-list');
-        blogList.innerHTML = '';
+        const errorMessage = document.getElementById('error-message');
+        errorMessage.textContent = ''; // Clear previous error message
 
-        // Filter and display only articles with images
-        const filteredArticles = data.articles.filter(article => article.urlToImage);
+        // Filter articles with images and limit to 4
+        const filteredArticles = data.articles.filter(article => article.urlToImage).slice(0, 4);
 
-        filteredArticles.slice(0, 4).forEach(article => {
+        if (filteredArticles.length === 0) {
+          errorMessage.textContent = 'No articles with images found.';
+          return;
+        }
+
+        filteredArticles.forEach(article => {
           const blogCard = document.createElement('li');
           blogCard.innerHTML = `
-            <div class="blog-card large">
-              <figure class="card-banner">
-                <img src="${article.urlToImage}" width="644" height="363" loading="lazy" alt="${article.title}" class="img-cover">
-              </figure>
-
-              <div class="card-content">
-                <div class="wrapper">
-                  <a href="#" class="tag">${article.source.name}</a>
-                  <a href="#" class="publish-date">
-                    <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
-                    <span class="span">${new Date(article.publishedAt).toLocaleDateString()}</span>
-                  </a>
-                </div>
-
-                <h3>
-                  <a href="${article.url}" class="card-title">${article.title}</a>
-                </h3>
-
-                <p class="card-text">
-                  ${article.description || 'No description available.'}
-                </p>
+            <div class="blog-card">
+              <div class="card-banner">
+                <img src="${article.urlToImage}" alt="${article.title}">
               </div>
+              <h3 class="card-title"><a href="${article.url}" target="_blank">${article.title}</a></h3>
+              <p>${article.description || 'No description available.'}</p>
             </div>
           `;
           blogList.appendChild(blogCard);
         });
       } catch (error) {
         console.error('Error fetching blog posts:', error);
+        document.getElementById('error-message').textContent = 'Error fetching articles. Please try again later.';
       }
     }
 
-    // Call the fetchBlogPosts function when the page loads
     window.onload = fetchBlogPosts;
   </script>
-  
 </body>
 </html>
+
 
 
 
