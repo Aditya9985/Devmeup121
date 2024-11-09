@@ -684,8 +684,7 @@
       <!-- 
         - #BLOG
       -->
-
-   <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -760,14 +759,15 @@
   <script>
     const apiKey = 'e90ee6ee7d094b1eb51b26e0951b7097';
     const apiUrl = `https://newsapi.org/v2/top-headlines?category=technology&apiKey=${apiKey}&pageSize=3`;
-    
-    // Array of default images to use as placeholders
+
+    // Default placeholder images
     const defaultImages = [
       'https://media.daily.dev/image/upload/s--CxzD6vbw--/f_auto/v1722860399/public/Placeholder%2005',
       'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/6170a05081f56e0e1f1d14ccf94fa78c?_a=AQAEuiZ',
       'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/bd6b9fa3d280e2b6f9624e1edcc328ab?_a=AQAEuiZ'
     ];
 
+    // Fallback articles in case API fails or returns no data
     const fallbackArticles = [
       {
         title: 'Samsung Spotted Working on AR Headset With Head-Mounted Display in Patent Document',
@@ -811,7 +811,7 @@
       newsContainer.innerHTML = ''; // Clear existing content
 
       articles.forEach((article, index) => {
-        // Use article image or default image based on index if no image is available
+        // Use article image or default image if no image is available
         const imageUrl = article.urlToImage || defaultImages[index % defaultImages.length];
         
         const newsCard = document.createElement('div');
