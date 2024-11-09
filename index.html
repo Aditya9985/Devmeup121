@@ -801,124 +801,156 @@
     </div>
 
     <script>
-        async function fetchBlogPosts() {
-            try {
-                // API URL
-                const apiUrl = 'https://newsapi.org/v2/top-headlines?category=technology&apiKey=e90ee6ee7d094b1eb51b26e0951b7097&pageSize=2';
+       async function fetchBlogPosts() {
+    try {
+        // API URL
+        const apiUrl = 'https://newsapi.org/v2/top-headlines?category=technology&apiKey=e90ee6ee7d094b1eb51b26e0951b7097&pageSize=2';
 
-                // Fetch data from the API
-                const response = await fetch(apiUrl);
+        // Fetch data from the API
+        const response = await fetch(apiUrl);
 
-                // Check if the request was successful
-                if (!response.ok) {
-                    throw new Error(`Error fetching data: ${response.statusText}`);
-                }
-
-                // Parse the response as JSON
-                const data = await response.json();
-
-                // Check if the data is valid and contains articles
-                if (!data.articles || data.articles.length === 0) {
-                    throw new Error('No articles found in the API response.');
-                }
-
-                console.log(data);  // Log the data to verify the structure in the console
-
-                // Get the container where blog posts will be added
-                const blogList = document.getElementById('blog-list');
-
-                // Clear any previous blog cards
-                blogList.innerHTML = '';
-
-                // Loop through the API response and create blog cards
-                data.articles.slice(0, 4).forEach(article => {
-                    const blogCard = document.createElement('li');
-                    blogCard.innerHTML = `
-                        <div class="blog-card ${article.urlToImage ? 'large' : ''}">
-                            <figure class="card-banner">
-                                <img src="${article.urlToImage || './assets/images/default-image.jpg'}" width="644" height="363" loading="lazy" alt="${article.title}" class="img-cover">
-                            </figure>
-                            <div class="card-content">
-                                <div class="wrapper">
-                                    <a href="#" class="tag">${article.source.name}</a>
-                                    <a href="#" class="publish-date">
-                                        <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
-                                        <span class="span">${new Date(article.publishedAt).toLocaleDateString()}</span>
-                                    </a>
-                                </div>
-                                <h3>
-                                    <a href="${article.url}" class="card-title">${article.title}</a>
-                                </h3>
-                                <p class="card-text">
-                                    ${article.description || 'No description available.'}
-                                </p>
-                            </div>
-                        </div>
-                    `;
-                    blogList.appendChild(blogCard);
-                });
-
-            } catch (error) {
-                // Log errors if any
-                console.error('Error fetching blog posts:', error);
-
-                // Fallback to mock data if there's an error fetching from the API
-                const mockData = {
-                    articles: [
-                        {
-                            source: { name: 'TechCrunch' },
-                            title: 'Latest Tech Trends',
-                            url: 'https://techcrunch.com',
-                            publishedAt: '2024-11-09',
-                            description: 'The latest trends in the tech industry.',
-                            urlToImage: 'https://via.placeholder.com/644x363'
-                        },
-                        {
-                            source: { name: 'Wired' },
-                            title: 'AI in 2024',
-                            url: 'https://wired.com',
-                            publishedAt: '2024-11-08',
-                            description: 'How AI is shaping the future.',
-                            urlToImage: 'https://via.placeholder.com/644x363'
-                        }
-                    ]
-                };
-
-                // Use mock data in case of error
-                const blogList = document.getElementById('blog-list');
-                blogList.innerHTML = ''; // Clear any existing content
-
-                mockData.articles.forEach(article => {
-                    const blogCard = document.createElement('li');
-                    blogCard.innerHTML = `
-                        <div class="blog-card ${article.urlToImage ? 'large' : ''}">
-                            <figure class="card-banner">
-                                <img src="${article.urlToImage || './assets/images/default-image.jpg'}" width="644" height="363" loading="lazy" alt="${article.title}" class="img-cover">
-                            </figure>
-                            <div class="card-content">
-                                <div class="wrapper">
-                                    <a href="#" class="tag">${article.source.name}</a>
-                                    <a href="#" class="publish-date">
-                                        <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
-                                        <span class="span">${new Date(article.publishedAt).toLocaleDateString()}</span>
-                                    </a>
-                                </div>
-                                <h3>
-                                    <a href="${article.url}" class="card-title">${article.title}</a>
-                                </h3>
-                                <p class="card-text">
-                                    ${article.description || 'No description available.'}
-                                </p>
-                            </div>
-                        </div>
-                    `;
-                    blogList.appendChild(blogCard);
-                });
-            }
+        // Check if the request was successful
+        if (!response.ok) {
+            throw new Error(`Error fetching data: ${response.statusText}`);
         }
 
-        // Call the function to fetch blog posts when the page is loaded
-        window.onload = fetchBlogPosts;
+        // Parse the response as JSON
+        const data = await response.json();
+
+        // Check if the data is valid and contains articles
+        if (!data.articles || data.articles.length === 0) {
+            throw new Error('No articles found in the API response.');
+        }
+
+        console.log(data);  // Log the data to verify the structure in the console
+
+        // Get the container where blog posts will be added
+        const blogList = document.getElementById('blog-list');
+
+        // Clear any previous blog cards
+        blogList.innerHTML = '';
+
+        // Loop through the API response and create blog cards
+        data.articles.slice(0, 4).forEach(article => {
+            const blogCard = document.createElement('li');
+            let imageUrl = article.urlToImage;  // Get the image URL
+
+            // If the image is not available, display the next article from the list
+            if (!imageUrl && data.articles.length > 1) {
+                const fallbackArticle = data.articles[1]; // Use the second article as fallback
+                imageUrl = fallbackArticle.urlToImage || '';  // Set fallback image if available
+                article.title = fallbackArticle.title;  // Replace the title with the fallback article title
+                article.description = fallbackArticle.description || 'No description available.';  // Replace description with fallback
+                article.url = fallbackArticle.url;  // Set fallback article URL
+                article.source.name = fallbackArticle.source.name;  // Use the fallback article's source
+            }
+
+            blogCard.innerHTML = `
+                <div class="blog-card ${imageUrl ? 'large' : ''}">
+                    <figure class="card-banner">
+                        ${imageUrl ? 
+                            `<img src="${imageUrl}" width="644" height="363" loading="lazy" alt="${article.title}" class="img-cover">` 
+                            : 
+                            ''  // No image if not available
+                        }
+                    </figure>
+                    <div class="card-content">
+                        <div class="wrapper">
+                            <a href="#" class="tag">${article.source.name}</a>
+                            <a href="#" class="publish-date">
+                                <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
+                                <span class="span">${new Date(article.publishedAt).toLocaleDateString()}</span>
+                            </a>
+                        </div>
+                        <h3>
+                            <a href="${article.url}" class="card-title">${article.title}</a>
+                        </h3>
+                        <p class="card-text">
+                            ${article.description}
+                        </p>
+                    </div>
+                </div>
+            `;
+            blogList.appendChild(blogCard);
+        });
+
+    } catch (error) {
+        // Log errors if any
+        console.error('Error fetching blog posts:', error);
+
+        // Fallback to mock data if there's an error fetching from the API
+        const mockData = {
+            articles: [
+                {
+                    source: { name: 'TechCrunch' },
+                    title: 'Latest Tech Trends',
+                    url: 'https://techcrunch.com',
+                    publishedAt: '2024-11-09',
+                    description: 'The latest trends in the tech industry.',
+                    urlToImage: ''  // No image provided
+                },
+                {
+                    source: { name: 'Wired' },
+                    title: 'AI in 2024',
+                    url: 'https://wired.com',
+                    publishedAt: '2024-11-08',
+                    description: 'How AI is shaping the future.',
+                    urlToImage: ''  // No image provided
+                }
+            ]
+        };
+
+        // Use mock data in case of error
+        const blogList = document.getElementById('blog-list');
+        blogList.innerHTML = ''; // Clear any existing content
+
+        mockData.articles.forEach(article => {
+            const blogCard = document.createElement('li');
+            let imageUrl = article.urlToImage;  // Get the image URL
+
+            // If the image is not available, display a fallback article
+            if (!imageUrl && mockData.articles.length > 1) {
+                const fallbackArticle = mockData.articles[1];  // Use second article as fallback
+                imageUrl = fallbackArticle.urlToImage || '';  // Set fallback image if available
+                article.title = fallbackArticle.title;  // Replace the title with fallback
+                article.description = fallbackArticle.description || 'No description available.';  // Replace description
+                article.url = fallbackArticle.url;  // Set fallback article URL
+                article.source.name = fallbackArticle.source.name;  // Use the fallback article's source
+            }
+
+            blogCard.innerHTML = `
+                <div class="blog-card ${imageUrl ? 'large' : ''}">
+                    <figure class="card-banner">
+                        ${imageUrl ? 
+                            `<img src="${imageUrl}" width="644" height="363" loading="lazy" alt="${article.title}" class="img-cover">` 
+                            : 
+                            ''  // No image if not available
+                        }
+                    </figure>
+                    <div class="card-content">
+                        <div class="wrapper">
+                            <a href="#" class="tag">${article.source.name}</a>
+                            <a href="#" class="publish-date">
+                                <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
+                                <span class="span">${new Date(article.publishedAt).toLocaleDateString()}</span>
+                            </a>
+                        </div>
+                        <h3>
+                            <a href="${article.url}" class="card-title">${article.title}</a>
+                        </h3>
+                        <p class="card-text">
+                            ${article.description}
+                        </p>
+                    </div>
+                </div>
+            `;
+            blogList.appendChild(blogCard);
+        });
+    }
+}
+
+window.onload = fetchBlogPosts;
+
     </script>
 </body>
 
