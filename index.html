@@ -719,26 +719,25 @@
 
         .blog-list {
             list-style-type: none;
-            padding: 0;
             display: flex;
             flex-wrap: wrap;
-            justify-content: space-between;
+            justify-content: space-around;
+            padding: 0;
         }
 
         .blog-card {
-            display: flex;
-            flex-direction: column;
-            width: 30%; /* Cards take up 1/3 of the width */
-            margin-bottom: 20px;
             background-color: white;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
+            margin: 10px;
+            width: 30%;
             transition: transform 0.3s ease;
+            overflow: hidden;
+            position: relative;
         }
 
         .blog-card:hover {
-            transform: scale(1.05);
+            transform: scale(1.03);
         }
 
         .card-banner img {
@@ -749,6 +748,7 @@
 
         .card-content {
             padding: 15px;
+            text-align: left;
         }
 
         .wrapper {
@@ -766,12 +766,18 @@
         }
 
         .publish-date {
+            display: flex;
+            align-items: center;
             font-size: 0.9rem;
             color: #888;
         }
 
+        .publish-date ion-icon {
+            margin-right: 5px;
+        }
+
         .card-title {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: bold;
             color: #333;
             text-decoration: none;
@@ -801,43 +807,49 @@
     <script>
         async function fetchBlogPosts() {
             try {
+                // API URL
                 const apiUrl = 'https://newsapi.org/v2/top-headlines?category=technology&apiKey=e90ee6ee7d094b1eb51b26e0951b7097&pageSize=3';
+
+                // Fetch data from the API
                 const response = await fetch(apiUrl);
 
+                // Check if the request was successful
                 if (!response.ok) {
                     throw new Error(`Error fetching data: ${response.statusText}`);
                 }
 
+                // Parse the response as JSON
                 const data = await response.json();
 
+                // Check if the data is valid and contains articles
                 if (!data.articles || data.articles.length === 0) {
                     throw new Error('No articles found in the API response.');
                 }
 
+                console.log(data);  // Log the data to verify the structure in the console
+
+                // Get the container where blog posts will be added
                 const blogList = document.getElementById('blog-list');
+
+                // Clear any previous blog cards
                 blogList.innerHTML = '';
 
-                // Define fallback image URLs
-                const defaultImages = [
-                    'https://media.daily.dev/image/upload/s--CxzD6vbw--/f_auto/v1722860399/public/Placeholder%2005',
-                    'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/6170a05081f56e0e1f1d14ccf94fa78c?_a=AQAEuiZ',
-                    'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/bd6b9fa3d280e2b6f9624e1edcc328ab?_a=AQAEuiZ'
-                ];
-
-                // Loop through articles and create blog cards
-                data.articles.forEach((article, index) => {
-                    const imageUrl = article.urlToImage || defaultImages[index % defaultImages.length];
-
+                // Loop through the API response and create blog cards
+                data.articles.slice(0, 3).forEach(article => {
                     const blogCard = document.createElement('li');
                     blogCard.innerHTML = `
                         <div class="blog-card">
                             <figure class="card-banner">
-                                <img src="${imageUrl}" alt="${article.title}" class="img-cover">
+                                <img src="${article.urlToImage || 'https://media.daily.dev/image/upload/f_auto/q_auto/v1/posts/6170a05081f56e0e1f1d14ccf94fa78c?_a=AQAEuiZ'}" 
+                                     width="644" height="363" loading="lazy" alt="${article.title}" class="img-cover">
                             </figure>
                             <div class="card-content">
                                 <div class="wrapper">
                                     <a href="#" class="tag">${article.source.name}</a>
-                                    <span class="publish-date">${new Date(article.publishedAt).toLocaleDateString()}</span>
+                                    <a href="#" class="publish-date">
+                                        <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
+                                        <span class="span">${new Date(article.publishedAt).toLocaleDateString()}</span>
+                                    </a>
                                 </div>
                                 <h3>
                                     <a href="${article.url}" class="card-title">${article.title}</a>
@@ -850,56 +862,66 @@
                     `;
                     blogList.appendChild(blogCard);
                 });
+
             } catch (error) {
+                // Log errors if any
                 console.error('Error fetching blog posts:', error);
 
-                const fallbackArticles = [
-                    {
-                        source: { name: 'TechCrunch' },
-                        title: 'Latest Tech Trends',
-                        url: 'https://techcrunch.com',
-                        publishedAt: '2024-11-09',
-                        description: 'The latest trends in the tech industry.',
-                        urlToImage: 'https://via.placeholder.com/644x363'
-                    },
-                    {
-                        source: { name: 'Wired' },
-                        title: 'AI in 2024',
-                        url: 'https://wired.com',
-                        publishedAt: '2024-11-08',
-                        description: 'How AI is shaping the future.',
-                        urlToImage: 'https://via.placeholder.com/644x363'
-                    },
-                    {
-                        source: { name: 'Engadget' },
-                        title: '5G Expansion in 2024',
-                        url: 'https://engadget.com',
-                        publishedAt: '2024-11-08',
-                        description: 'How 5G is transforming the tech landscape.',
-                        urlToImage: 'https://via.placeholder.com/644x363'
-                    }
-                ];
+                // Fallback to mock data if there's an error fetching from the API
+                const mockData = {
+                    articles: [
+                        {
+                            source: { name: 'TechCrunch' },
+                            title: 'Latest Tech Trends',
+                            url: 'https://techcrunch.com',
+                            publishedAt: '2024-11-09',
+                            description: 'The latest trends in the tech industry.',
+                            urlToImage: 'https://via.placeholder.com/644x363'
+                        },
+                        {
+                            source: { name: 'Wired' },
+                            title: 'AI in 2024',
+                            url: 'https://wired.com',
+                            publishedAt: '2024-11-08',
+                            description: 'How AI is shaping the future.',
+                            urlToImage: 'https://via.placeholder.com/644x363'
+                        },
+                        {
+                            source: { name: 'The Verge' },
+                            title: 'Samsung AR Headset Patent',
+                            url: 'https://theverge.com',
+                            publishedAt: '2024-11-07',
+                            description: 'Samsung is working on an AR headset.',
+                            urlToImage: 'https://via.placeholder.com/644x363'
+                        }
+                    ]
+                };
 
+                // Use mock data in case of error
                 const blogList = document.getElementById('blog-list');
-                blogList.innerHTML = '';
+                blogList.innerHTML = ''; // Clear any existing content
 
-                fallbackArticles.forEach(article => {
+                mockData.articles.forEach(article => {
                     const blogCard = document.createElement('li');
                     blogCard.innerHTML = `
                         <div class="blog-card">
                             <figure class="card-banner">
-                                <img src="${article.urlToImage}" alt="${article.title}" class="img-cover">
+                                <img src="${article.urlToImage || 'https://via.placeholder.com/644x363'}" 
+                                     width="644" height="363" loading="lazy" alt="${article.title}" class="img-cover">
                             </figure>
                             <div class="card-content">
                                 <div class="wrapper">
                                     <a href="#" class="tag">${article.source.name}</a>
-                                    <span class="publish-date">${new Date(article.publishedAt).toLocaleDateString()}</span>
+                                    <a href="#" class="publish-date">
+                                        <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
+                                        <span class="span">${new Date(article.publishedAt).toLocaleDateString()}</span>
+                                    </a>
                                 </div>
                                 <h3>
                                     <a href="${article.url}" class="card-title">${article.title}</a>
                                 </h3>
                                 <p class="card-text">
-                                    ${article.description}
+                                    ${article.description || 'No description available.'}
                                 </p>
                             </div>
                         </div>
@@ -909,12 +931,12 @@
             }
         }
 
+        // Call the function to fetch blog posts when the page is loaded
         window.onload = fetchBlogPosts;
     </script>
 </body>
 
 </html>
-
 
 
 
