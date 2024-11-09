@@ -686,259 +686,150 @@
       -->
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Blog</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            text-align: center;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-        }
-
-        .blog-list {
-            list-style-type: none;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
-            padding: 0;
-        }
-
-        .blog-card {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin: 10px;
-            width: 30%;
-            transition: transform 0.3s ease;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .blog-card:hover {
-            transform: scale(1.03);
-        }
-
-        .card-banner img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-        }
-
-        .card-content {
-            padding: 15px;
-            text-align: left;
-        }
-
-        .wrapper {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-
-        .tag {
-            background-color: #4caf50;
-            padding: 5px 10px;
-            color: white;
-            font-weight: bold;
-            border-radius: 5px;
-        }
-
-        .publish-date {
-            display: flex;
-            align-items: center;
-            font-size: 0.9rem;
-            color: #888;
-        }
-
-        .publish-date ion-icon {
-            margin-right: 5px;
-        }
-
-        .card-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #333;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .card-title:hover {
-            color: #4caf50;
-        }
-
-        .card-text {
-            font-size: 1rem;
-            color: #666;
-            line-height: 1.5;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tech News</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+      background-color: #f0f2f5;
+    }
+    .news-container {
+      max-width: 800px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    .news-card {
+      display: flex;
+      align-items: flex-start;
+      padding: 15px;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s ease;
+    }
+    .news-card:hover {
+      transform: translateY(-5px);
+    }
+    .news-card img {
+      width: 100px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-right: 15px;
+    }
+    .news-content {
+      flex: 1;
+    }
+    .news-title {
+      font-size: 1.1rem;
+      color: #333;
+      margin: 0;
+    }
+    .news-title a {
+      text-decoration: none;
+      color: #333;
+    }
+    .news-title a:hover {
+      color: #007bff;
+    }
+    .news-description {
+      color: #666;
+      font-size: 0.9rem;
+      margin: 5px 0;
+    }
+    .news-author {
+      font-size: 0.8rem;
+      color: #999;
+    }
+  </style>
 </head>
-
 <body>
-    <div class="container">
-        <h1>Latest Tech News</h1>
-        <ul id="blog-list" class="blog-list">
-            <!-- Blog posts will be inserted here dynamically -->
-        </ul>
-    </div>
 
-    <script>
-        async function fetchBlogPosts() {
-            try {
-                // API URL
-                const apiUrl = 'https://newsapi.org/v2/top-headlines?category=technology&apiKey=e90ee6ee7d094b1eb51b26e0951b7097&pageSize=3';
+  <div class="news-container" id="news-container">
+    <!-- News cards will be inserted here -->
+  </div>
 
-                // Fetch data from the API
-                const response = await fetch(apiUrl);
+  <script>
+    const apiKey = 'e90ee6ee7d094b1eb51b26e0951b7097';
+    const apiUrl = `https://newsapi.org/v2/top-headlines?category=technology&apiKey=${apiKey}&pageSize=3`;
+    
+    // Fallback images provided by the user
+    const fallbackImages = [
+      'https://media.daily.dev/image/upload/s--CxzD6vbw--/f_auto/v1722860399/public/Placeholder%2005',
+      'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/6170a05081f56e0e1f1d14ccf94fa78c?_a=AQAEuiZ',
+      'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/bd6b9fa3d280e2b6f9624e1edcc328ab?_a=AQAEuiZ'
+    ];
 
-                // Check if the request was successful
-                if (!response.ok) {
-                    throw new Error(`Error fetching data: ${response.statusText}`);
-                }
+    const fallbackArticles = [
+      {
+        title: 'Samsung Spotted Working on AR Headset With Head-Mounted Display in Patent Document',
+        url: '#',
+        urlToImage: fallbackImages[0],
+        description: 'Samsung is working on an AR headset with head-mounted display, as spotted in a patent document.',
+        author: 'David Delima'
+      },
+      {
+        title: 'Prime Video Reveals Teaser and Release Date for My Fault: London',
+        url: '#',
+        urlToImage: fallbackImages[1],
+        description: 'Prime Video reveals the teaser and release date for the new show "My Fault: London".',
+        author: 'Gadgets 360 Staff'
+      },
+      {
+        title: 'Entertainment Highlights of the Week',
+        url: '#',
+        urlToImage: fallbackImages[2],
+        description: 'Catch up on the latest entertainment highlights this week.',
+        author: 'Entertainment Weekly'
+      }
+    ];
 
-                // Parse the response as JSON
-                const data = await response.json();
+    async function fetchNews() {
+      try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) throw new Error('Failed to fetch news');
 
-                // Check if the data is valid and contains articles
-                if (!data.articles || data.articles.length === 0) {
-                    throw new Error('No articles found in the API response.');
-                }
+        const data = await response.json();
+        const articles = data.articles && data.articles.length > 0 ? data.articles : fallbackArticles;
+        displayNews(articles);
+      } catch (error) {
+        console.error('Error fetching news:', error);
+        displayNews(fallbackArticles);
+      }
+    }
 
-                console.log(data);  // Log the data to verify the structure in the console
+    function displayNews(articles) {
+      const newsContainer = document.getElementById('news-container');
+      newsContainer.innerHTML = ''; // Clear existing content
 
-                // Get the container where blog posts will be added
-                const blogList = document.getElementById('blog-list');
+      articles.forEach((article, index) => {
+        const imageUrl = article.urlToImage || fallbackImages[index] || fallbackImages[0];
+        
+        const newsCard = document.createElement('div');
+        newsCard.classList.add('news-card');
+        newsCard.innerHTML = `
+          <img src="${imageUrl}" onerror="this.src='${fallbackImages[0]}'" alt="${article.title}">
+          <div class="news-content">
+            <h3 class="news-title"><a href="${article.url}" target="_blank">${article.title}</a></h3>
+            <p class="news-description">${article.description || 'No description available.'}</p>
+            <p class="news-author">By ${article.author || 'Unknown Author'}</p>
+          </div>
+        `;
+        newsContainer.appendChild(newsCard);
+      });
+    }
 
-                // Clear any previous blog cards
-                blogList.innerHTML = '';
-
-                // Loop through the API response and create blog cards
-                data.articles.slice(0, 3).forEach(article => {
-                    const blogCard = document.createElement('li');
-                    blogCard.innerHTML = `
-                        <div class="blog-card">
-                            <figure class="card-banner">
-                                <img src="${article.urlToImage || 'https://media.daily.dev/image/upload/f_auto/q_auto/v1/posts/6170a05081f56e0e1f1d14ccf94fa78c?_a=AQAEuiZ'}" 
-                                     width="644" height="363" loading="lazy" alt="${article.title}" class="img-cover">
-                            </figure>
-                            <div class="card-content">
-                                <div class="wrapper">
-                                    <a href="#" class="tag">${article.source.name}</a>
-                                    <a href="#" class="publish-date">
-                                        <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
-                                        <span class="span">${new Date(article.publishedAt).toLocaleDateString()}</span>
-                                    </a>
-                                </div>
-                                <h3>
-                                    <a href="${article.url}" class="card-title">${article.title}</a>
-                                </h3>
-                                <p class="card-text">
-                                    ${article.description || 'No description available.'}
-                                </p>
-                            </div>
-                        </div>
-                    `;
-                    blogList.appendChild(blogCard);
-                });
-
-            } catch (error) {
-                // Log errors if any
-                console.error('Error fetching blog posts:', error);
-
-                // Fallback to mock data if there's an error fetching from the API
-                const mockData = {
-                    articles: [
-                        {
-                            source: { name: 'TechCrunch' },
-                            title: 'Latest Tech Trends',
-                            url: 'https://techcrunch.com',
-                            publishedAt: '2024-11-09',
-                            description: 'The latest trends in the tech industry.',
-                            urlToImage: 'https://via.placeholder.com/644x363'
-                        },
-                        {
-                            source: { name: 'Wired' },
-                            title: 'AI in 2024',
-                            url: 'https://wired.com',
-                            publishedAt: '2024-11-08',
-                            description: 'How AI is shaping the future.',
-                            urlToImage: 'https://via.placeholder.com/644x363'
-                        },
-                        {
-                            source: { name: 'The Verge' },
-                            title: 'Samsung AR Headset Patent',
-                            url: 'https://theverge.com',
-                            publishedAt: '2024-11-07',
-                            description: 'Samsung is working on an AR headset.',
-                            urlToImage: 'https://via.placeholder.com/644x363'
-                        }
-                    ]
-                };
-
-                // Use mock data in case of error
-                const blogList = document.getElementById('blog-list');
-                blogList.innerHTML = ''; // Clear any existing content
-
-                mockData.articles.forEach(article => {
-                    const blogCard = document.createElement('li');
-                    blogCard.innerHTML = `
-                        <div class="blog-card">
-                            <figure class="card-banner">
-                                <img src="${article.urlToImage || 'https://via.placeholder.com/644x363'}" 
-                                     width="644" height="363" loading="lazy" alt="${article.title}" class="img-cover">
-                            </figure>
-                            <div class="card-content">
-                                <div class="wrapper">
-                                    <a href="#" class="tag">${article.source.name}</a>
-                                    <a href="#" class="publish-date">
-                                        <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
-                                        <span class="span">${new Date(article.publishedAt).toLocaleDateString()}</span>
-                                    </a>
-                                </div>
-                                <h3>
-                                    <a href="${article.url}" class="card-title">${article.title}</a>
-                                </h3>
-                                <p class="card-text">
-                                    ${article.description || 'No description available.'}
-                                </p>
-                            </div>
-                        </div>
-                    `;
-                    blogList.appendChild(blogCard);
-                });
-            }
-        }
-
-        // Call the function to fetch blog posts when the page is loaded
-        window.onload = fetchBlogPosts;
-    </script>
+    window.onload = fetchNews;
+  </script>
 </body>
-
 </html>
-
-
 
   <!-- 
     - #FOOTER
