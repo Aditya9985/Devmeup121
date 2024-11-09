@@ -725,7 +725,6 @@
   <section class="blog" id="blog">
     <h2>Popular Blogs</h2>
     <ul class="blog-list" id="blog-list"></ul>
-    <p id="error-message" class="error-message"></p>
     <pre id="debug-output" style="background: #eee; padding: 10px;"></pre>
   </section>
 
@@ -733,10 +732,37 @@
     const apiKey = 'e90ee6ee7d094b1eb51b26e0951b7097';
     const apiUrl = `https://newsapi.org/v2/top-headlines?category=technology&apiKey=${apiKey}&pageSize=10`;
     const defaultImage = 'https://via.placeholder.com/600x400?text=Popular+Blogs';
+    
+    // Default fallback articles
+    const fallbackArticles = [
+      {
+        title: 'Samsung Spotted Working on AR Headset With Head-Mounted Display in Patent Document',
+        url: '#',
+        urlToImage: 'https://via.placeholder.com/600x400?text=Samsung+AR+Headset',
+        description: 'Samsung Spotted Working on AR Headset With Head-Mounted Display in Patent Document',
+        author: 'David Delima',
+        publishedAt: '8 November 2024',
+      },
+      {
+        title: 'Prime Video Reveals Teaser and Release Date for My Fault: London',
+        url: '#',
+        urlToImage: 'https://via.placeholder.com/600x400?text=Prime+Video+Teaser',
+        description: 'Prime Video reveals the teaser and release date for "My Fault: London".',
+        author: 'Gadgets 360 Staff',
+        publishedAt: '8 November 2024',
+      },
+      {
+        title: 'Entertainment Highlights',
+        url: '#',
+        urlToImage: 'https://via.placeholder.com/600x400?text=Entertainment+Highlights',
+        description: 'Catch up on the latest in entertainment with exclusive updates from the industry.',
+        author: 'Entertainment Staff',
+        publishedAt: '8 November 2024',
+      }
+    ];
 
     async function fetchBlogPosts() {
       const debugOutput = document.getElementById('debug-output');
-      const errorMessage = document.getElementById('error-message');
       const blogList = document.getElementById('blog-list');
       
       try {
@@ -750,17 +776,11 @@
         const data = await response.json();
         debugOutput.textContent += `\nFetched Data: ${JSON.stringify(data, null, 2)}`;
 
-        // Clear any previous error or content
-        errorMessage.textContent = '';
+        // Clear any previous content
         blogList.innerHTML = '';
 
-        // Limit articles to 3 entries
-        const articles = data.articles.slice(0, 3);
-
-        if (articles.length === 0) {
-          errorMessage.textContent = 'No articles found.';
-          return;
-        }
+        // Check if any articles are returned; if not, use fallback articles
+        const articles = data.articles.length > 0 ? data.articles.slice(0, 3) : fallbackArticles;
 
         // Display articles
         articles.forEach(article => {
@@ -772,13 +792,28 @@
               </div>
               <h3 class="card-title"><a href="${article.url}" target="_blank">${article.title}</a></h3>
               <p>${article.description || 'No description available.'}</p>
+              <small>Written by ${article.author || 'Unknown Author'}, ${new Date(article.publishedAt).toDateString()}</small>
             </div>
           `;
           blogList.appendChild(blogCard);
         });
       } catch (error) {
         console.error('Error fetching blog posts:', error);
-        errorMessage.textContent = 'Error fetching articles. Please try again later.';
+        // Display fallback articles if API call fails
+        fallbackArticles.forEach(article => {
+          const blogCard = document.createElement('li');
+          blogCard.innerHTML = `
+            <div class="blog-card">
+              <div class="card-banner">
+                <img src="${article.urlToImage}" alt="${article.title}">
+              </div>
+              <h3 class="card-title"><a href="${article.url}" target="_blank">${article.title}</a></h3>
+              <p>${article.description}</p>
+              <small>Written by ${article.author}, ${article.publishedAt}</small>
+            </div>
+          `;
+          blogList.appendChild(blogCard);
+        });
       }
     }
 
