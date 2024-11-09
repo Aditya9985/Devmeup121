@@ -732,6 +732,7 @@
   <script>
     const apiKey = 'e90ee6ee7d094b1eb51b26e0951b7097';
     const apiUrl = `https://newsapi.org/v2/top-headlines?category=technology&apiKey=${apiKey}&pageSize=10`;
+    const defaultImage = 'https://via.placeholder.com/600x400?text=Popular+Blogs';
 
     async function fetchBlogPosts() {
       const debugOutput = document.getElementById('debug-output');
@@ -753,21 +754,21 @@
         errorMessage.textContent = '';
         blogList.innerHTML = '';
 
-        // Filter articles with images
-        const filteredArticles = data.articles.filter(article => article.urlToImage).slice(0, 4);
+        // Limit articles to 3 entries
+        const articles = data.articles.slice(0, 3);
 
-        if (filteredArticles.length === 0) {
-          errorMessage.textContent = 'No articles with images found.';
+        if (articles.length === 0) {
+          errorMessage.textContent = 'No articles found.';
           return;
         }
 
         // Display articles
-        filteredArticles.forEach(article => {
+        articles.forEach(article => {
           const blogCard = document.createElement('li');
           blogCard.innerHTML = `
             <div class="blog-card">
               <div class="card-banner">
-                <img src="${article.urlToImage}" alt="${article.title}">
+                <img src="${article.urlToImage || defaultImage}" alt="${article.title}">
               </div>
               <h3 class="card-title"><a href="${article.url}" target="_blank">${article.title}</a></h3>
               <p>${article.description || 'No description available.'}</p>
