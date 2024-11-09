@@ -690,134 +690,151 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Popular Blogs</title>
+  <title>Tech News</title>
   <style>
-    /* Basic styles */
+    /* Basic styling */
     body {
       font-family: Arial, sans-serif;
-    }
-    .blog {
-      background-color: #f8f8f8;
+      display: flex;
+      justify-content: center;
       padding: 20px;
+      background-color: #f0f2f5;
     }
-    .blog-list {
-      display: grid;
-      gap: 40px;
-    }
-    .blog-card .card-banner img {
+
+    .news-container {
+      max-width: 800px;
       width: 100%;
-      height: auto;
-      border-radius: 10px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
     }
-    .card-title {
+
+    .news-card {
+      display: flex;
+      align-items: flex-start;
+      padding: 15px;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s ease;
+    }
+
+    .news-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .news-card img {
+      width: 100px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-right: 15px;
+    }
+
+    .news-content {
+      flex: 1;
+    }
+
+    .news-title {
+      font-size: 1.1rem;
       color: #333;
-      font-size: 1.5rem;
-      margin-top: 10px;
+      margin: 0;
     }
-    .error-message {
-      color: red;
-      margin-top: 20px;
+
+    .news-title a {
+      text-decoration: none;
+      color: #333;
+    }
+
+    .news-title a:hover {
+      color: #007bff;
+    }
+
+    .news-description {
+      color: #666;
+      font-size: 0.9rem;
+      margin: 5px 0;
+    }
+
+    .news-author {
+      font-size: 0.8rem;
+      color: #999;
     }
   </style>
 </head>
 <body>
 
-  <section class="blog" id="blog">
-    <h2>Popular Blogs</h2>
-    <ul class="blog-list" id="blog-list"></ul>
-    <pre id="debug-output" style="background: #eee; padding: 10px;"></pre>
-  </section>
+  <div class="news-container" id="news-container">
+    <!-- News cards will be inserted here -->
+  </div>
 
   <script>
     const apiKey = 'e90ee6ee7d094b1eb51b26e0951b7097';
-    const apiUrl = `https://newsapi.org/v2/top-headlines?category=technology&apiKey=${apiKey}&pageSize=10`;
-    const defaultImage = 'https://via.placeholder.com/600x400?text=Popular+Blogs';
-    
-    // Default fallback articles
+    const apiUrl = `https://newsapi.org/v2/top-headlines?category=technology&apiKey=${apiKey}&pageSize=3`;
+    const defaultImage = 'https://via.placeholder.com/100x80?text=News';
+
     const fallbackArticles = [
       {
         title: 'Samsung Spotted Working on AR Headset With Head-Mounted Display in Patent Document',
         url: '#',
-        urlToImage: 'https://via.placeholder.com/600x400?text=Samsung+AR+Headset',
-        description: 'Samsung Spotted Working on AR Headset With Head-Mounted Display in Patent Document',
-        author: 'David Delima',
-        publishedAt: '8 November 2024',
+        urlToImage: defaultImage,
+        description: 'Samsung is working on an AR headset with head-mounted display, as spotted in a patent document.',
+        author: 'David Delima'
       },
       {
         title: 'Prime Video Reveals Teaser and Release Date for My Fault: London',
         url: '#',
-        urlToImage: 'https://via.placeholder.com/600x400?text=Prime+Video+Teaser',
-        description: 'Prime Video reveals the teaser and release date for "My Fault: London".',
-        author: 'Gadgets 360 Staff',
-        publishedAt: '8 November 2024',
+        urlToImage: defaultImage,
+        description: 'Prime Video reveals the teaser and release date for the new show "My Fault: London".',
+        author: 'Gadgets 360 Staff'
       },
       {
-        title: 'Entertainment Highlights',
+        title: 'Entertainment Highlights of the Week',
         url: '#',
-        urlToImage: 'https://via.placeholder.com/600x400?text=Entertainment+Highlights',
-        description: 'Catch up on the latest in entertainment with exclusive updates from the industry.',
-        author: 'Entertainment Staff',
-        publishedAt: '8 November 2024',
+        urlToImage: defaultImage,
+        description: 'Catch up on the latest entertainment highlights this week.',
+        author: 'Entertainment Weekly'
       }
     ];
 
-    async function fetchBlogPosts() {
-      const debugOutput = document.getElementById('debug-output');
-      const blogList = document.getElementById('blog-list');
-      
+    async function fetchNews() {
+      const newsContainer = document.getElementById('news-container');
+
       try {
         const response = await fetch(apiUrl);
-        debugOutput.textContent = `API Response Status: ${response.status}`;
-        
         if (!response.ok) {
-          throw new Error('Failed to fetch news articles');
+          throw new Error('Failed to fetch news');
         }
-        
+
         const data = await response.json();
-        debugOutput.textContent += `\nFetched Data: ${JSON.stringify(data, null, 2)}`;
-
-        // Clear any previous content
-        blogList.innerHTML = '';
-
-        // Check if any articles are returned; if not, use fallback articles
-        const articles = data.articles.length > 0 ? data.articles.slice(0, 3) : fallbackArticles;
-
-        // Display articles
-        articles.forEach(article => {
-          const blogCard = document.createElement('li');
-          blogCard.innerHTML = `
-            <div class="blog-card">
-              <div class="card-banner">
-                <img src="${article.urlToImage || defaultImage}" alt="${article.title}">
-              </div>
-              <h3 class="card-title"><a href="${article.url}" target="_blank">${article.title}</a></h3>
-              <p>${article.description || 'No description available.'}</p>
-              <small>Written by ${article.author || 'Unknown Author'}, ${new Date(article.publishedAt).toDateString()}</small>
-            </div>
-          `;
-          blogList.appendChild(blogCard);
-        });
+        const articles = data.articles && data.articles.length > 0 ? data.articles : fallbackArticles;
+        displayNews(articles);
       } catch (error) {
-        console.error('Error fetching blog posts:', error);
-        // Display fallback articles if API call fails
-        fallbackArticles.forEach(article => {
-          const blogCard = document.createElement('li');
-          blogCard.innerHTML = `
-            <div class="blog-card">
-              <div class="card-banner">
-                <img src="${article.urlToImage}" alt="${article.title}">
-              </div>
-              <h3 class="card-title"><a href="${article.url}" target="_blank">${article.title}</a></h3>
-              <p>${article.description}</p>
-              <small>Written by ${article.author}, ${article.publishedAt}</small>
-            </div>
-          `;
-          blogList.appendChild(blogCard);
-        });
+        console.error('Error fetching news:', error);
+        displayNews(fallbackArticles);
       }
     }
 
-    window.onload = fetchBlogPosts;
+    function displayNews(articles) {
+      const newsContainer = document.getElementById('news-container');
+      newsContainer.innerHTML = ''; // Clear existing content
+
+      articles.forEach(article => {
+        const newsCard = document.createElement('div');
+        newsCard.classList.add('news-card');
+        newsCard.innerHTML = `
+          <img src="${article.urlToImage || defaultImage}" alt="${article.title}">
+          <div class="news-content">
+            <h3 class="news-title"><a href="${article.url}" target="_blank">${article.title}</a></h3>
+            <p class="news-description">${article.description || 'No description available.'}</p>
+            <p class="news-author">By ${article.author || 'Unknown Author'}</p>
+          </div>
+        `;
+        newsContainer.appendChild(newsCard);
+      });
+    }
+
+    window.onload = fetchNews;
   </script>
 </body>
 </html>
