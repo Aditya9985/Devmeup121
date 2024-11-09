@@ -692,43 +692,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Popular Blogs</title>
   <style>
-    /* Styling for blog cards and section */
-    :root {
-      --ghost-white: #f8f8f8;
-      --raisin-black-1: #262626;
-      --majorelle-blue: #6050dc;
-      --cool-gray: #9b9b9b;
-      --fs-2: 2rem;
-      --fs-4: 1.5rem;
-      --fs-9: 1rem;
-      --fw-500: 500;
-      --fw-700: 700;
-      --radius-20: 20px;
-      --transition-1: 0.3s ease;
-      --transition-2: 0.5s ease;
+    /* Basic styles */
+    body {
+      font-family: Arial, sans-serif;
     }
-
     .blog {
-      background-color: var(--ghost-white);
+      background-color: #f8f8f8;
       padding: 20px;
     }
-
     .blog-list {
       display: grid;
       gap: 40px;
     }
-
     .blog-card .card-banner img {
       width: 100%;
       height: auto;
-      border-radius: var(--radius-20);
+      border-radius: 10px;
     }
-
     .card-title {
-      color: var(--raisin-black-1);
-      font-size: var(--fs-4);
-      font-weight: var(--fw-700);
+      color: #333;
+      font-size: 1.5rem;
       margin-top: 10px;
+    }
+    .error-message {
+      color: red;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -737,7 +725,8 @@
   <section class="blog" id="blog">
     <h2>Popular Blogs</h2>
     <ul class="blog-list" id="blog-list"></ul>
-    <p id="error-message" style="color: red;"></p>
+    <p id="error-message" class="error-message"></p>
+    <pre id="debug-output" style="background: #eee; padding: 10px;"></pre>
   </section>
 
   <script>
@@ -745,16 +734,26 @@
     const apiUrl = `https://newsapi.org/v2/top-headlines?category=technology&apiKey=${apiKey}&pageSize=10`;
 
     async function fetchBlogPosts() {
+      const debugOutput = document.getElementById('debug-output');
+      const errorMessage = document.getElementById('error-message');
+      const blogList = document.getElementById('blog-list');
+      
       try {
         const response = await fetch(apiUrl);
-        if (!response.ok) throw new Error('Failed to fetch news articles');
+        debugOutput.textContent = `API Response Status: ${response.status}`;
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch news articles');
+        }
         
         const data = await response.json();
-        const blogList = document.getElementById('blog-list');
-        const errorMessage = document.getElementById('error-message');
-        errorMessage.textContent = ''; // Clear previous error message
+        debugOutput.textContent += `\nFetched Data: ${JSON.stringify(data, null, 2)}`;
 
-        // Filter articles with images and limit to 4
+        // Clear any previous error or content
+        errorMessage.textContent = '';
+        blogList.innerHTML = '';
+
+        // Filter articles with images
         const filteredArticles = data.articles.filter(article => article.urlToImage).slice(0, 4);
 
         if (filteredArticles.length === 0) {
@@ -762,6 +761,7 @@
           return;
         }
 
+        // Display articles
         filteredArticles.forEach(article => {
           const blogCard = document.createElement('li');
           blogCard.innerHTML = `
@@ -777,7 +777,7 @@
         });
       } catch (error) {
         console.error('Error fetching blog posts:', error);
-        document.getElementById('error-message').textContent = 'Error fetching articles. Please try again later.';
+        errorMessage.textContent = 'Error fetching articles. Please try again later.';
       }
     }
 
@@ -785,10 +785,6 @@
   </script>
 </body>
 </html>
-
-
-
-
 
 
 
